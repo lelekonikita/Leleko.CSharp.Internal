@@ -52,4 +52,53 @@
             ret		// выходим из функции
 		}
 	}
+	
+	// Класс для математических операций с произвольными примитивами
+	// C#: public static class Memory
+	.class public auto ansi abstract sealed beforefieldinit MathOperation
+	{
+		// Сложение 2х чисел примитивного типа
+		// С#: x + y
+		.method public hidebysig static !!T Add<T>(!!T x, !!T y)
+		{
+			.maxstack 2 
+			ldarg.0 // помещаем 1й параметр в стек
+			ldarg.1 // помещаем 2й параметр в стек
+			add 	// складываем 2 значения
+			ret		// возвращаем результат
+		}
+		
+		// Вычитание чисел примитивного типа
+		// C#: x-y
+		.method public hidebysig static !!T Sub<T>(!!T x, !!T y)
+		{
+			.maxstack 2 
+			ldarg.0 // помещаем 1й параметр в стек
+			ldarg.1 // помещаем 2й параметр в стек
+			sub 	// складываем 2 значения
+			ret		// возвращаем результат
+		}
+		
+		// умножение чисел примитивного типа
+		// C#: x*y
+		.method public hidebysig static !!T Mul<T>(!!T x, !!T y)
+		{
+			.maxstack 2 
+			ldarg.0 // помещаем 1й параметр в стек
+			ldarg.1 // помещаем 2й параметр в стек
+			mul 	// складываем 2 значения
+			ret		// возвращаем результат
+		}
+		
+		// Вычитание чисел примитивного типа
+		// C#: x/y
+		.method public hidebysig static !!T Div<T>(!!T x, !!T y)
+		{
+			.maxstack 2 
+			ldarg.0 // помещаем 1й параметр в стек
+			ldarg.1 // помещаем 2й параметр в стек
+			div 	// складываем 2 значения
+			ret		// возвращаем результат
+		}
+	}
 }
