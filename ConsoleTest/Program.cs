@@ -6,7 +6,7 @@ namespace ConsoleTest
 	{
 		public static void Main(string[] args)
 		{
-			Console.WriteLine(Leleko.IL.Memory.Sizeof<object>());
+			MemoryTest.Entry();
 		}
 	}
 }
