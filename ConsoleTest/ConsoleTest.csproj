@@ -45,5 +45,9 @@
       <Project>{07D5CA39-6C32-4D10-BF17-CD9EEB944633}</Project>
       <Name>Leleko.IL.Internal</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Leleko.CSharp.SignaturesLook\Leleko.CSharp.SignaturesLook.csproj">
+      <Project>{DDA6E5CD-2892-4DC6-A492-195AF3E1861A}</Project>
+      <Name>Leleko.CSharp.SignaturesLook</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

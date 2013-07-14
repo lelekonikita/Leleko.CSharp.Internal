@@ -7,6 +7,8 @@ Project("{B4EC64DC-6D44-11DD-AAB0-C9A155D89593}") = "Leleko.IL.Internal", "Lelek
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leleko.CSharp.SignaturesLook", "Leleko.CSharp.SignaturesLook\Leleko.CSharp.SignaturesLook.csproj", "{DDA6E5CD-2892-4DC6-A492-195AF3E1861A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leleko.CSharp.Delegates", "Leleko.CSharp.Delegates\Leleko.CSharp.Delegates.csproj", "{D7CB3EDD-C18D-4D86-88D2-AF482DFB5C6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -21,6 +23,10 @@ Global
 		{1BB593EE-0DAF-4AB1-A33D-CB450551B2EC}.Debug|x86.Build.0 = Debug|x86
 		{1BB593EE-0DAF-4AB1-A33D-CB450551B2EC}.Release|x86.ActiveCfg = Release|x86
 		{1BB593EE-0DAF-4AB1-A33D-CB450551B2EC}.Release|x86.Build.0 = Release|x86
+		{D7CB3EDD-C18D-4D86-88D2-AF482DFB5C6B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D7CB3EDD-C18D-4D86-88D2-AF482DFB5C6B}.Debug|x86.Build.0 = Debug|Any CPU
+		{D7CB3EDD-C18D-4D86-88D2-AF482DFB5C6B}.Release|x86.ActiveCfg = Release|Any CPU
+		{D7CB3EDD-C18D-4D86-88D2-AF482DFB5C6B}.Release|x86.Build.0 = Release|Any CPU
 		{DDA6E5CD-2892-4DC6-A492-195AF3E1861A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{DDA6E5CD-2892-4DC6-A492-195AF3E1861A}.Debug|x86.Build.0 = Debug|Any CPU
 		{DDA6E5CD-2892-4DC6-A492-195AF3E1861A}.Release|x86.ActiveCfg = Release|Any CPU
