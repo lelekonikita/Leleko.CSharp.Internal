@@ -4,6 +4,7 @@ using System;
  * Проект создан для просмотра дампов и сигнатур
  * */
 using System.Runtime.InteropServices;
+using System.Collections;
 
 namespace Leleko.CSharp.SignaturesLook
 {
@@ -17,11 +18,14 @@ namespace Leleko.CSharp.SignaturesLook
 	{
 		delegate T addDelegate<T>(T x, T y);
 
-		public static double Sum(double* first, int count)
+
+		public static void Get(Delegate @delegate) {}
+
+		public static double Sum<T>(double* first, int count, ref int k, out T y, T value)
 		{
+			y = value;
 			double result = 0;
 			for(;(count--)>0; result += *(first++));
-
 
 			return result;
 		}
@@ -49,12 +53,31 @@ namespace Leleko.CSharp.SignaturesLook
 
 		public static void MySUM<T>(double *x)
 		{
+			string s = "AA";
 			*x = 2.222;
 		}
 
-		public static void ConverAll(myStruct* inputFirst, myStruct* outputFirst, int count, Converter<myStruct,myStruct> converter)
+		public static bool Equals<T>(double x, double y, T g)
+			where T:struct
 		{
-			for(var end = inputFirst + count; inputFirst < end; *(outputFirst++)=converter(*(inputFirst++)));
+			double *ptr = stackalloc double[100];
+			return x == y;
+		}
+
+		public static bool All(myStruct* first, int count, Predicate<myStruct> predicate)
+		{
+			for(var end = first + count; first < end;)
+				if (!predicate(*(first)++))
+					return false;
+			return true;
+		}
+
+		public static bool AllEquals(myStruct* xArrFirst, myStruct* yArrFirst,  int count, Leleko.CSharp.Delegates.Operation<myStruct,myStruct,bool> operation)
+		{
+			for(var xArrEnd= xArrFirst + count; xArrFirst < xArrEnd;)
+				if (!operation(*(xArrFirst++),*(yArrFirst++)))
+					return false;
+			return true;
 		}
 	}
 }

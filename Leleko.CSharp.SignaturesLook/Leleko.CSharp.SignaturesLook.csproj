@@ -38,4 +38,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Leleko.CSharp.Delegates\Leleko.CSharp.Delegates.csproj">
+      <Project>{D7CB3EDD-C18D-4D86-88D2-AF482DFB5C6B}</Project>
+      <Name>Leleko.CSharp.Delegates</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

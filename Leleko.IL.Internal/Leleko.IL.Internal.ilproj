@@ -8,22 +8,22 @@
     <ProjectGuid>{07D5CA39-6C32-4D10-BF17-CD9EEB944633}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Leleko.IL.Internal</RootNamespace>
-    <UsePartialTypes>false</UsePartialTypes>
+    <UsePartialTypes>False</UsePartialTypes>
     <AssemblyName>Leleko.IL.Internal</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <OutputPath>..\Debug</OutputPath>
     <ErrorReport>prompt</ErrorReport>
-    <ConsolePause>false</ConsolePause>
+    <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
     <OutputPath>..\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
-    <ConsolePause>false</ConsolePause>
+    <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="main.il" />

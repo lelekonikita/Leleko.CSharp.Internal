@@ -1,6 +1,6 @@
 .assembly Leleko.IL.Internal
 {
-	.ver 1:0:0:1
+	.ver 1:0:2:0017
 }
 .module Leleko.IL.Internal.dll
 
@@ -25,14 +25,26 @@
 		{
 			.maxstack 3
 			ldarg.0	// помещаем в стек указатель на область-назначения
-            ldarg.1 // помещаем в стек указатель на копируемую область
-            ldarg.2 // помещаем в стек число копируемых байт
-            cpblk	// копируем
-            ret		// выходим из функции
+	        ldarg.1 // помещаем в стек указатель на копируемую область
+	        ldarg.2 // помещаем в стек число копируемых байт
+	        cpblk	// копируем
+	        ret		// выходим из функции
 		}
 		
 		// C#: public static Copy<Tx,Ty>(ref Tx,ref Ty,int)
 		.method public hidebysig static void Copy<Tx,Ty>(!!Tx& destination, !!Ty& source, int32 byteCount) { .maxstack 3 ldarg.0 ldarg.1 ldarg.2 cpblk ret }
+		
+		// Получение 'внутреннего объекта' из объекта
+		.method public hidebysig static !!T GetIternal<T>(object @object, int32 offset) { .maxstack 2 ldarg.0 ldarg.1 add ldobj !!T ret }
+		
+		// Преобразование фрагмента потока к типу
+		.method public hidebysig static !!TValue Get<TStream,TValue>(!!TStream& @stream) { .maxstack 1 ldarg.0 ldobj !!TValue ret }
+		
+		// Помещение значения в поток
+		.method public hidebysig static void Set<TStream,TValue>(!!TStream& @stream, !!TValue @value ) { .maxstack 2 ldarg.0 ldarg.1 stobj !!TValue ret }
+		
+		// Получение типизированного указателя на фрагмент потока
+		.method public hidebysig static !!TValue* GetPointer<TStream,TValue>(!!TStream& @stream) { .maxstack 1 ldarg.0 ret }
 	}
 	
 	// Класс для математических операций с произвольными примитивами
@@ -63,10 +75,14 @@
 		// C#: нет аналогов
 		.method public hidebysig static !!T Pretend<T>(object obj){ .maxstack 1 ldarg.0 ret	}
 		
+		// Возвращает тот же самый тип
+		.method public hidebysig static !!TOutput Covariate<TInput,TOutput>(!!TInput obj){ .maxstack 1 ldarg.0 ret	}
+		
 		// Изменяет собственный тип на тип указанный в handleType
 		// Ex: typeof(X).TypeHandle.Value
 		// C#: нет аналогов
 		.method public hidebysig static object ChangeType(object obj, native int handleType) cil managed { .maxstack 2 ldarg.0 ldarg.1 stind.i ldarg.0 ret }
+		
 		.method public hidebysig static bool ToBoolean<T>(!!T @value) cil managed { .maxstack 2 ldarg.0 conv.r8 ldc.r8 0.0 ceq ldc.i4.0 ceq ret }
 		.method public hidebysig static uint8 ToByte<T>(!!T @value) cil managed { .maxstack 1 ldarg.0 conv.ovf.u1 ret }
 		.method public hidebysig static int8 ToSByte<T>(!!T @value) cil managed { .maxstack 1 ldarg.0 conv.ovf.i1 ret }
@@ -123,6 +139,152 @@
 		.method public hidebysig static bool IsNull<T>(!!T @value) cil managed { .maxstack 2 ldarg.0 conv.r8 ldc.r8 0.0 ceq ret }
 		.method public hidebysig static bool IsOne<T>(!!T @value) cil managed { .maxstack 2 ldarg.0 conv.r8 ldc.r8 1.0 ceq ret }
 		.method public hidebysig static bool Equals<T>(!!T @valueA, !!T @valueB) cil managed { .maxstack 2 ldarg.0 ldarg.1 ceq ret }
+	}
+	
+	.class public auto ansi abstract sealed beforefieldinit Sequence
+	{
+		.method public hidebysig static bool All<T>(!!T& first, int32 count, class [mscorlib]System.Predicate`1<!!T> predicate) cil managed 
+		{
+			.maxstack 4
+			.locals init (
+				[0] !!T&
+			)
+			ldarg.0
+			ldarg.1
+			sizeof !!T
+			mul
+			add
+			stloc.0
+			br.s cond
+			// loop start (head: IL_002d)
+		for:	ldarg.2
+				ldarg.0
+				dup
+				sizeof !!T
+				add
+				starg.s first
+				ldobj !!T
+				callvirt instance bool class [mscorlib]System.Predicate`1<!!T>::Invoke(!0)
+				brfalse.s no
+		cond: 	ldarg.0
+				ldloc.0
+				blt.un for
+			// end loop
+			ldc.i4.1
+			ret
+		no:	ldc.i4.0
+			ret
+		} // end of method MyClass::All
+		
+		.method public hidebysig static bool Any<T>(!!T& first, int32 count, class [mscorlib]System.Predicate`1<!!T> predicate) cil managed 
+		{
+			.maxstack 4
+			.locals init (
+				[0] !!T&
+			)
+			ldarg.0
+			ldarg.1
+			sizeof !!T
+			mul
+			add
+			stloc.0
+			br.s cond
+			// loop start (head: IL_002d)
+		for:	ldarg.2
+				ldarg.0
+				dup
+				sizeof !!T
+				add
+				starg.s first
+				ldobj !!T
+				callvirt instance bool class [mscorlib]System.Predicate`1<!!T>::Invoke(!0)
+				brtrue.s yes
+		cond: 	ldarg.0
+				ldloc.0
+				blt.un for
+			// end loop
+			ldc.i4.0
+			ret
+		yes:ldc.i4.1
+			ret
+		} // end of method MyClass::All
+		
+		.method public hidebysig static bool SequenceAll<Tx,Ty>(!!Tx& xArrFirst, !!Ty& yArrFirst, int32 count, class [mscorlib]System.Delegate @delegate) cil managed 
+		{
+			.maxstack 5
+			.locals init (
+				[0] !!Tx&
+			)
+			ldarg.0
+			ldarg.2
+			sizeof !!Tx
+			mul
+			add
+			stloc.0
+			br.s cond
+			// loop start (head: IL_002d)
+		for:	ldarg.3
+				ldarg.0
+				dup
+				sizeof !!Tx
+				add
+				starg.s xArrFirst
+				ldobj !!Tx
+				ldarg.1
+				dup
+				sizeof !!Ty
+				add
+				starg.s yArrFirst
+				ldobj !!Ty
+				callvirt instance !2 class [Leleko.CSharp.Delegates]Leleko.CSharp.Delegates.Operation`3<!!Tx, !!Ty, bool>::Invoke(!0, !1)
+				brfalse.s no
+		cond: 	ldarg.0
+				ldloc.0
+				blt.un for
+			// end loop
+			ldc.i4.1
+			ret
+		no:	ldc.i4.0
+			ret
+		} // end of method MyClass::All
+		
+		.method public hidebysig static bool EqualsAll<T>(!!T& xArrFirst, !!T& yArrFirst, int32 count) cil managed 
+		{
+			.maxstack 3
+			.locals init (
+				[0] !!T&
+			)
+			ldarg.0
+			ldarg.2
+			sizeof !!T
+			mul
+			add
+			stloc.0
+			br.s cond
+			// loop start (head: IL_002d)
+		for:	ldarg.0
+				dup
+				sizeof !!T
+				add
+				starg.s xArrFirst
+				ldobj !!T
+				ldarg.1
+				dup
+				sizeof !!T
+				add
+				starg.s yArrFirst
+				ldobj !!T
+				ceq
+				brfalse.s no
+		cond: 	ldarg.0
+				ldloc.0
+				blt.un for
+			// end loop
+			ldc.i4.1
+			ret
+		no:	ldc.i4.0
+			ret
+		} // end of method MyClass::All
 	}
 	
 	.class public auto ansi abstract sealed beforefieldinit Algorithm
@@ -241,6 +403,119 @@
 				ldobj !!T
 				ldarg.3
 				calli !!Tresult(!!Tresult,!!T)
+				starg.s emptyValue
+		cond:	ldarg.1
+				ldloc.0
+				blt.un.s for
+			// end loop
+			ldarg.0
+			ret
+		}
+		
+		
+		// Аккумулирование диапазона значений
+		// C#: public static Tresult Accumulate<T,Tresult>(Tresult emptyValue, ref T first, int32 count, IntPtr handleMethod)
+		// C#: handleMethod = typeof(Funk<T,T,TResult).MethodHandle.GetFunctionPointer()
+		.method public hidebysig static !!Tresult Accumulate<T,Tresult>(!!Tresult emptyValue, !!T& first, int32 count, class [Leleko.CSharp.Delegates]Leleko.CSharp.Delegates.Operation`3<!!Tresult, !!T, !!Tresult> methodDelegate) cil managed
+		{
+			.maxstack 5
+			.locals init ( 
+				[0] !!T& 
+			)
+			ldarg.1
+			ldarg.2
+			sizeof !!T
+			mul
+			add
+			stloc.0
+			br.s cond
+			// loop start
+		for: 	ldarg.3
+				ldarg.0
+				ldarg.1
+				dup
+				sizeof !!T
+				add
+				starg.s first
+				ldobj !!T
+				callvirt instance !2 class [Leleko.CSharp.Delegates]Leleko.CSharp.Delegates.Operation`3<!!Tresult, !!T, !!Tresult>::Invoke(!0, !1)
+				starg.s emptyValue
+		cond:	ldarg.1
+				ldloc.0
+				blt.un.s for
+			// end loop
+			ldarg.0
+			ret
+		}
+
+		
+		.method public hidebysig static !!Tresult Accumulate<Tx,Ty,Tresult>(!!Tresult emptyValue, !!Tx& xArrFirst, !!Ty& yArrFirst, int32 count, native int handleMethod) cil managed
+		{
+			.maxstack 5
+			.locals init ( 
+				[0] !!Tx& 
+			)
+			ldarg.1
+			ldarg.3
+			sizeof !!Tx
+			mul
+			add
+			stloc.0
+			br.s cond
+			// loop start
+		for: 	ldarg.0
+				ldarg.1
+				dup
+				sizeof !!Tx
+				add
+				starg.s xArrFirst
+				ldobj !!Tx
+				ldarg.2
+				dup
+				sizeof !!Ty
+				add
+				starg.s yArrFirst
+				ldobj !!Ty
+				ldarg.s handleMethod
+				calli !!Tresult(!!Tresult,!!Tx,!!Ty)
+				starg.s emptyValue
+		cond:	ldarg.1
+				ldloc.0
+				blt.un.s for
+			// end loop
+			ldarg.0
+			ret
+		}
+		
+		.method public hidebysig static !!Tresult Accumulate<Tx,Ty,Tresult>(!!Tresult emptyValue, !!Tx& xArrFirst, !!Ty& yArrFirst, int32 count, class [mscorlib]System.Delegate methodDelegate) cil managed
+		{
+			.maxstack 6
+			.locals init ( 
+				[0] !!Tx& 
+			)
+			ldarg.1
+			ldarg.3
+			sizeof !!Tx
+			mul
+			add
+			stloc.0
+			br.s cond
+			// loop start
+		for: 	ldarg.s 4
+				ldarg.0
+				ldarg.1
+				dup
+				sizeof !!Tx
+				add
+				starg.s xArrFirst
+				ldobj !!Tx
+				ldarg.2
+				dup
+				sizeof !!Ty
+				add
+				starg.s yArrFirst
+				ldobj !!Ty
+				callvirt instance !3 class [Leleko.CSharp.Delegates]Leleko.CSharp.Delegates.Operation`4<!!Tresult, !!Tx, !!Ty, !!Tresult>::Invoke(!0, !1, !2)
 				starg.s emptyValue
 		cond:	ldarg.1
 				ldloc.0
