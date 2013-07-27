@@ -1,6 +1,6 @@
 .assembly Leleko.IL.Internal
 {
-	.ver 1:0:2:0017
+	.ver 1:0:3:0001
 }
 .module Leleko.IL.Internal.dll
 
@@ -9,43 +9,110 @@
 	// Класс для манипуляций с памятью
 	// C#: public static class Memory
 	.class public auto ansi abstract sealed beforefieldinit Memory
-	{		
-		// Узнать размер типа (C# накладывает ряд ограничений)
-		// C#: public static int Sizeof<T>()
-		.method public hidebysig static int32 Sizeof<T>() cil managed
-		{
-			// C#: return sizeof(T)
-			.maxstack 1 // размер стека
-			sizeof !!T  // вычисляем размер типа T и помещаем результат в стек
-			ret			// возвращаем значение с вершины стека
+	{
+		.class public auto ansi abstract sealed beforefieldinit Type
+		{	
+			.method public hidebysig static int32 Sizeof<T>() cil managed { .maxstack 1 sizeof !!T ret }
+			
+			.method public hidebysig static valuetype [mscorlib]System.RuntimeTypeHandle RuntimeTypeHandle<T>() cil managed { .maxstack 1 ldtoken !!T ret }
+			
+			.method public hidebysig static native int TypeHandle<T>() cil managed { .maxstack 1 .locals init ( [0] valuetype [mscorlib]System.RuntimeTypeHandle ) ldtoken !!T stloc.0 ldloca.s 0 call instance native int [mscorlib]System.RuntimeTypeHandle::get_Value() ret }
 		}
-		
+			
 		// C#: public static Copy(IntPtr,IntPtr,int)
-		.method public hidebysig static void Copy(native int destination, native int source, int32 byteCount)
-		{
-			.maxstack 3
-			ldarg.0	// помещаем в стек указатель на область-назначения
-	        ldarg.1 // помещаем в стек указатель на копируемую область
-	        ldarg.2 // помещаем в стек число копируемых байт
-	        cpblk	// копируем
-	        ret		// выходим из функции
-		}
+		.method public hidebysig static void Copy(native int destination, native int source, int32 byteCount) { .maxstack 3 ldarg.0 ldarg.1 ldarg.2 cpblk ret }
 		
 		// C#: public static Copy<Tx,Ty>(ref Tx,ref Ty,int)
 		.method public hidebysig static void Copy<Tx,Ty>(!!Tx& destination, !!Ty& source, int32 byteCount) { .maxstack 3 ldarg.0 ldarg.1 ldarg.2 cpblk ret }
 		
-		// Получение 'внутреннего объекта' из объекта
+		// Получение 'внутреннего поля' из объекта
 		.method public hidebysig static !!T GetIternal<T>(object @object, int32 offset) { .maxstack 2 ldarg.0 ldarg.1 add ldobj !!T ret }
 		
+		// Получение 'внутреннего поля' из объекта
+		.method public hidebysig static void SetIternal<T>(object @object, int32 offset, !!T @value) { .maxstack 2 ldarg.0 ldarg.1 add ldarg.2 stobj !!T ret }
+
 		// Преобразование фрагмента потока к типу
-		.method public hidebysig static !!TValue Get<TStream,TValue>(!!TStream& @stream) { .maxstack 1 ldarg.0 ldobj !!TValue ret }
+		.method public hidebysig static !!TValue Get<TStream,TValue>(!!TStream& @stream) { .maxstack 2 ldarg.0 ldobj !!TValue ret }
 		
 		// Помещение значения в поток
 		.method public hidebysig static void Set<TStream,TValue>(!!TStream& @stream, !!TValue @value ) { .maxstack 2 ldarg.0 ldarg.1 stobj !!TValue ret }
 		
 		// Получение типизированного указателя на фрагмент потока
 		.method public hidebysig static !!TValue* GetPointer<TStream,TValue>(!!TStream& @stream) { .maxstack 1 ldarg.0 ret }
+		
+		.class public auto ansi abstract sealed beforefieldinit Convert
+		{
+			.method public hidebysig static !!TOut As<TIn,TOut>(!!TIn obj) { .maxstack 1 ldarg.0 ret }
+			
+			.method public hidebysig static !!TOut As<TOut>(native int pointer) { .maxstack 1 ldarg.0 ret }
+			
+			.method public hidebysig static !!TOut As<TOut>(void* pointer) { .maxstack 1 ldarg.0 ret }
+			
+			.method public hidebysig static !!TOut As<TIn, TOut>(!!TIn& pointer) { .maxstack 1 ldarg.0 ret }
+			
+			.method public hidebysig static object ChangeType(object obj, native int handleType) cil managed { .maxstack 2 ldarg.0 ldarg.1 stind.i ldarg.0 ret }
+		}
+		
+		.class public auto ansi abstract sealed beforefieldinit String
+		{
+			// Установить новую длину строки (настоятельно не рекомендуется устанавливать больше текущей
+			.method public hidebysig static void SetLength(string s, int32 newLength) { .maxstack 2 ldarg.0 sizeof native int add ldarg.1 stind.i4 ret }
+			
+			// Задать символ на нужной позиции
+			.method public hidebysig static void SetSymbol(string s, int32 index, char symbol) { .maxstack 3 ldarg.0 sizeof native int add ldc.i4.4 add ldarg.1 ldc.i4.2 mul add ldarg.2 stind.i2 ret }
+			
+			// Копирует символы из ссылки в буфферную строку
+			.method public hidebysig static void Bfs(string s, char& @stream, int32 count) 
+			{ 
+				.locals init( [0] char&, [1] int32 )
+				.maxstack 4
+				ldarg.0 
+				sizeof native int 
+				add 
+				dup 
+				ldarg.2 
+				stind.i4
+				ldc.i4.4
+				add
+				dup
+				stloc.0
+				ldarg.1
+				ldarg.2
+				ldc.i4.2
+				mul
+				dup 
+				stloc.1
+				cpblk
+				ldloc.0
+				ldloc.1
+				add
+				ldc.i4.0
+				stind.i2
+				ret
+			}
+			
+			// Копирует символы из ссылки в буфферную строку
+			.method public hidebysig static void Bfs(string s, string source, int32 index, int32 count) 
+			{ 
+				.maxstack 4
+				ldarg.0
+				ldarg.1
+				sizeof native int 
+				add
+				ldc.i4.4
+				add
+				ldarg.2
+				ldc.i4.2
+				mul
+				add
+				ldarg.3
+				call void Leleko.IL.Memory/String::Bfs(string,char&,int32)
+				ret
+			}
+		}
 	}
+	
+	
 	
 	// Класс для математических операций с произвольными примитивами
 	// C#: public static class MathOperation
@@ -71,17 +138,7 @@
 	// C#: public static class Converter
 	.class public auto ansi abstract sealed beforefieldinit Converter
 	{
-		// Тип претворится другим типом
-		// C#: нет аналогов
-		.method public hidebysig static !!T Pretend<T>(object obj){ .maxstack 1 ldarg.0 ret	}
 		
-		// Возвращает тот же самый тип
-		.method public hidebysig static !!TOutput Covariate<TInput,TOutput>(!!TInput obj){ .maxstack 1 ldarg.0 ret	}
-		
-		// Изменяет собственный тип на тип указанный в handleType
-		// Ex: typeof(X).TypeHandle.Value
-		// C#: нет аналогов
-		.method public hidebysig static object ChangeType(object obj, native int handleType) cil managed { .maxstack 2 ldarg.0 ldarg.1 stind.i ldarg.0 ret }
 		
 		.method public hidebysig static bool ToBoolean<T>(!!T @value) cil managed { .maxstack 2 ldarg.0 conv.r8 ldc.r8 0.0 ceq ldc.i4.0 ceq ret }
 		.method public hidebysig static uint8 ToByte<T>(!!T @value) cil managed { .maxstack 1 ldarg.0 conv.ovf.u1 ret }
@@ -99,9 +156,7 @@
 		.method public hidebysig static void CovertAll<TInput,TOutput>(!!TInput& inputFirst, !!TOutput& outputFirst, int32 count, class [mscorlib]System.Converter`2<!!TInput, !!TOutput> converter)
 		{
 			.maxstack 5
-			.locals init (
-				[0] !!TInput&
-			)
+			.locals init ( [0] !!TInput& )
 			ldarg.0
 			ldarg.2
 			sizeof !!TInput
@@ -109,8 +164,7 @@
 			add
 			stloc.0
 			br.s cond
-			// loop start
-		for: 	ldarg.1
+		for: 	ldarg.1 // loop start
 				dup
 				sizeof !!TOutput
 				add
@@ -126,8 +180,7 @@
 				stobj !!TOutput
 		cond:	ldarg.0
 				ldloc.0
-				blt.un.s for
-			// end loop
+				blt.un.s for // end loop
 			ret
 		}
 	}

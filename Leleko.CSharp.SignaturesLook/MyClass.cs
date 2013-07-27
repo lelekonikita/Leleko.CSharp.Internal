@@ -19,10 +19,16 @@ namespace Leleko.CSharp.SignaturesLook
 		delegate T addDelegate<T>(T x, T y);
 
 
-		public static void Get(Delegate @delegate) {}
+		public static void Get(int x) 
+		{
+			Console.WriteLine(sizeof(char));
+		}
+
+
 
 		public static double Sum<T>(double* first, int count, ref int k, out T y, T value)
 		{
+			Console.WriteLine(typeof(T).TypeHandle.Value);
 			y = value;
 			double result = 0;
 			for(;(count--)>0; result += *(first++));
